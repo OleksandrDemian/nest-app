@@ -1,85 +1,156 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
 ## Project setup
 
+### Database setup
+The project uses Sequelize ORM connected to a MySQL database.
+Make sure `ecommerce` database is created in your MySQL server.
+
+The models are automatically created (if required) by Sequelize when the project is started.
+
+### Configure the environment variables
+
+Create `.env` file in the root of the project and add the following variables:
+- `DB_HOST` - the host of the database
+- `DB_PORT` - the port of the database
+- `DB_USERNAME` - the username of the database
+- `DB_PASSWORD` - the password of the database
+- `DB_NAME` - the name of the database
+
+Example:
+```properties
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=<db password>
+DB_NAME=ecommerce
+```
+
+### Install the dependencies
 ```bash
-$ yarn install
+yarn install
 ```
 
 ## Compile and run the project
 
+Run development mode
+
 ```bash
 # development
-$ yarn run start
+yarn run start
 
 # watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+yarn run start:dev
 ```
 
 ## Run tests
 
+This project contains both unit and e2e tests. The tests rely on a in-memory SQLite database, so you don't need to have a database running to run the tests.
+
 ```bash
 # unit tests
-$ yarn run test
+yarn run test
 
 # e2e tests
-$ yarn run test:e2e
+yarn run test:e2e
 
 # test coverage
-$ yarn run test:cov
+yarn run test:cov
 ```
 
-## Resources
+## Run prod
 
-Check out a few resources that may come in handy when working with NestJS:
+Build and run the project in production mode
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+yarn run build
+yarn run start:prod
+```
 
-## Support
+## API Explorer and Documentation
+You can access the API explorer and documentation after running the app by visiting `{{hostname}}/api-explorer` in your browser.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Postman Collection
+You can import the Postman collection from `http/postman` directory to test the API endpoints.
 
-## Stay in touch
+## Endpoints examples
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### `Create new product`
 
-## License
+```js
+// POST {{hostname}}/products
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+const request =
+{
+    "productToken": "test-token-1",
+    "name": "Test product",
+    "price": 50,
+    "stock": 10
+}
+
+const response =
+{
+    "id": 4,
+    "productToken": "test-token-1",
+    "name": "Test product",
+    "price": 50,
+    "stock": 10
+}
+```
+
+### `Get all products`
+
+```js
+// GET {{hostname}}/products
+
+const response =
+[
+    {
+      "id": 2,
+      "productToken": "Laptop-2",
+      "name": "laptop-2",
+      "price": 1500,
+      "stock": 5
+    },
+    {
+      "id": 4,
+      "productToken": "test-token-1",
+      "name": "Test product",
+      "price": 50,
+      "stock": 10
+    }
+]
+```
+
+### `Get product by id`
+
+```js
+// GET {{hostname}}/products/1
+
+const response =
+{
+    "id": 1,
+    "productToken": "Test product 1",
+    "name": "test-product-1",
+    "price": 1500,
+    "stock": 5
+}
+```
+
+### `Update product`
+
+```js
+// PATCH {{hostname}}/products/1
+
+const request =
+{
+    "stock": 5
+}
+
+// response 204 - success no content
+```
+
+### `Delete product`
+
+```js
+// DELETE {{hostname}}/products/1
+// response 204 - success no content
+```
