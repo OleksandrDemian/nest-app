@@ -1,128 +1,160 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
+import { getModelToken } from '@nestjs/sequelize';
 import { Product } from './entities/product.entity';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-
-const newProduct: CreateProductDto = {
-  name: 'Test product',
-  productToken: 'test-product-1',
-  price: 300,
-  stock: 5,
-};
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('ProductsService', () => {
   let service: ProductsService;
 
-  beforeAll(async () => {
+  const mockProduct = {
+    id: 1,
+    productToken: 'abc123',
+    name: 'Test Product',
+    price: 100,
+    stock: 10,
+    update: jest.fn(),
+    destroy: jest.fn(),
+  };
+
+  const mockProductModel = {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    findAll: jest.fn(),
+    findByPk: jest.fn(),
+  };
+
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        // use SQLite for in-memory database testing
-        SequelizeModule.forRoot({
-          dialect: 'sqlite',
-          storage: ':memory:',
-          models: [Product],
-          synchronize: true,
-          autoLoadModels: true,
-          logging: false,
-        }),
-        SequelizeModule.forFeature([Product]),
+      providers: [
+        ProductsService,
+        {
+          provide: getModelToken(Product),
+          useValue: mockProductModel,
+        },
       ],
-      providers: [ProductsService],
     }).compile();
 
     service = module.get(ProductsService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  afterEach(() => {
+    jest.clearAllMocks(); // Clear all mocks after each test to avoid interference
   });
 
   describe('create', () => {
-    it('should create a product', async () => {
-      const newProduct: CreateProductDto = {
-        name: 'Test product',
-        productToken: 'test-product-1',
-        price: 300,
-        stock: 5,
-      };
+    it('should create a product successfully', async () => {
+      mockProductModel.findOne.mockResolvedValue(null); // No existing product with the same token
+      mockProductModel.create.mockResolvedValue(mockProduct);
 
-      const result = await service.create(newProduct);
-      expect(result.get({ plain: true })).toEqual({
-        id: 1,
-        ...newProduct,
+      const result = await service.create({
+        productToken: 'abc123',
+        name: 'Test Product',
+        price: 100,
+        stock: 10,
+      });
+
+      expect(result).toEqual(mockProduct);
+      expect(mockProductModel.findOne).toHaveBeenCalledWith({
+        where: { productToken: 'abc123' },
+      });
+      expect(mockProductModel.create).toHaveBeenCalledWith({
+        productToken: 'abc123',
+        name: 'Test Product',
+        price: 100,
+        stock: 10,
       });
     });
 
     it('should throw an error if product token already exists', async () => {
-      try {
-        await service.create(newProduct);
-      } catch (error) {
-        expect(error.message).toEqual('Product token already exists');
-      }
-    });
-  });
+      mockProductModel.findOne.mockResolvedValue(mockProduct);
 
-  describe('findOne', () => {
-    it('find product by id', async () => {
-      const result = await service.findOne(1);
-      expect(result.get({ plain: true })).toEqual({
-        id: 1,
-        ...newProduct,
+      await expect(
+        service.create({
+          productToken: 'abc123',
+          name: 'Test Product',
+          price: 100,
+          stock: 10,
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(mockProductModel.findOne).toHaveBeenCalledWith({
+        where: { productToken: 'abc123' },
       });
-    });
-
-    it('should return null if not found', async () => {
-      const result = await service.findOne(9999);
-      expect(result).toBeNull();
+      expect(mockProductModel.create).not.toHaveBeenCalled();
     });
   });
 
   describe('findAll', () => {
-    it('should return all products', async () => {
-      const result = await service.findAll({ limit: 10, page: 1 });
-      expect(result.length).toEqual(1);
-      expect(result[0].get({ plain: true })).toEqual({
-        id: 1,
-        ...newProduct,
+    it('should return a list of products', async () => {
+      const products = [mockProduct];
+      mockProductModel.findAll.mockResolvedValue(products);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result).toEqual(products);
+      expect(mockProductModel.findAll).toHaveBeenCalledWith({
+        limit: 10,
+        offset: 0,
       });
     });
   });
 
-  describe('update', () => {
-    it('should throw error if product does not exist', async () => {
-      try {
-        await service.update(9999, { stock: 25 });
-      } catch (error) {
-        expect(error.message).toEqual('Product not found');
-      }
+  describe('findOne', () => {
+    it('should return a product if found', async () => {
+      mockProductModel.findByPk.mockResolvedValue(mockProduct);
+
+      const result = await service.findOne(1);
+
+      expect(result).toEqual(mockProduct);
+      expect(mockProductModel.findByPk).toHaveBeenCalledWith(1);
     });
 
-    it('should update an existing product', async () => {
-      const updatedProductData: UpdateProductDto = {
-        stock: 25,
-      };
+    it('should return null if no product is found', async () => {
+      mockProductModel.findByPk.mockResolvedValue(null);
 
-      await service.update(1, updatedProductData);
       const result = await service.findOne(1);
-      expect(result.getDataValue('stock')).toEqual(updatedProductData.stock);
+
+      expect(result).toBeNull();
+      expect(mockProductModel.findByPk).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a product successfully', async () => {
+      mockProductModel.findByPk.mockResolvedValue(mockProduct);
+
+      await service.update(1, { stock: 20 });
+
+      expect(mockProduct.update).toHaveBeenCalledWith({ stock: 20 });
+    });
+
+    it('should throw a NotFoundException if product not found', async () => {
+      mockProductModel.findByPk.mockResolvedValue(null);
+
+      await expect(service.update(1, { stock: 20 })).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(mockProduct.update).not.toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
-    it('should throw error if product does not exist', async () => {
-      try {
-        await service.remove(9999);
-      } catch (error) {
-        expect(error.message).toEqual('Product not found');
-      }
+    it('should delete a product successfully', async () => {
+      mockProductModel.findByPk.mockResolvedValue(mockProduct);
+
+      await service.remove(1);
+
+      expect(mockProduct.destroy).toHaveBeenCalled();
     });
 
-    it('should remove a product', async () => {
-      await service.remove(1);
-      const result = await service.findOne(1);
-      expect(result).toBeNull();
+    it('should throw a NotFoundException if product not found', async () => {
+      mockProductModel.findByPk.mockResolvedValue(null);
+
+      await expect(service.remove(1)).rejects.toThrow(NotFoundException);
+
+      expect(mockProduct.destroy).not.toHaveBeenCalled();
     });
   });
 });

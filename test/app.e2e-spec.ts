@@ -17,6 +17,10 @@ describe('AppController (e2e)', () => {
       imports: [AppModule],
     });
 
+    /**
+     * Override DatabaseModule to use in-memory SQLite database
+     * This allows us to run isolated tests without affecting the real database
+     */
     builder.overrideModule(DatabaseModule).useModule(
       SequelizeModule.forRoot({
         dialect: 'sqlite',
@@ -63,7 +67,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(201);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product>();
           expect(data.name).toEqual(name);
           expect(data.productToken).toEqual(productToken);
         });
@@ -169,7 +173,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product[]>();
           expect(data.length).toEqual(10); // by default fetch 10 results
           expect(data[0].id).toEqual(1); // first product
         });
@@ -183,7 +187,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product[]>();
           expect(data.length).toEqual(10);
         });
     });
@@ -196,7 +200,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product[]>();
           expect(data.length).toEqual(5);
         });
     });
@@ -209,7 +213,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product[]>();
           // should return default 10 results on first page
           expect(data.length).toEqual(10);
         });
@@ -225,7 +229,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product>();
           expect(data.id).toEqual(1);
         });
     });
@@ -238,7 +242,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          expect(JSON.parse(response.payload)).toBeNull();
+          expect(response.json()).toBeNull();
         });
     });
   });
@@ -266,7 +270,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          const data = JSON.parse(response.payload);
+          const data = response.json<Product>();
           expect(data.stock).toEqual(25);
         });
     });
@@ -334,7 +338,7 @@ describe('AppController (e2e)', () => {
         })
         .then((response) => {
           expect(response.statusCode).toEqual(200);
-          expect(JSON.parse(response.payload)).toBeNull();
+          expect(response.json()).toBeNull();
         });
     });
 

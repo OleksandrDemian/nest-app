@@ -66,5 +66,91 @@ yarn run start:prod
 ```
 
 ## API Explorer and Documentation
-You can access the API explorer and documentation after running the app by visiting `{host}/api-explorer` in your browser.
+You can access the API explorer and documentation after running the app by visiting `{{hostname}}/api-explorer` in your browser.
 
+## Postman Collection
+You can import the Postman collection from `http/postman` directory to test the API endpoints.
+
+## Endpoints examples
+
+### `Create new product`
+
+```js
+// POST {{hostname}}/products
+
+const request =
+{
+    "productToken": "test-token-1",
+    "name": "Test product",
+    "price": 50,
+    "stock": 10
+}
+
+const response =
+{
+    "id": 4,
+    "productToken": "test-token-1",
+    "name": "Test product",
+    "price": 50,
+    "stock": 10
+}
+```
+
+### `Get all products`
+
+```js
+// GET {{hostname}}/products
+
+const response =
+[
+    {
+      "id": 2,
+      "productToken": "Laptop-2",
+      "name": "laptop-2",
+      "price": 1500,
+      "stock": 5
+    },
+    {
+      "id": 4,
+      "productToken": "test-token-1",
+      "name": "Test product",
+      "price": 50,
+      "stock": 10
+    }
+]
+```
+
+### `Get product by id`
+
+```js
+// GET {{hostname}}/products/1
+
+const response =
+{
+    "id": 1,
+    "productToken": "Test product 1",
+    "name": "test-product-1",
+    "price": 1500,
+    "stock": 5
+}
+```
+
+### `Update product`
+
+```js
+// PATCH {{hostname}}/products/1
+
+const request =
+{
+    "stock": 5
+}
+
+// response 204 - success no content
+```
+
+### `Delete product`
+
+```js
+// DELETE {{hostname}}/products/1
+// response 204 - success no content
+```

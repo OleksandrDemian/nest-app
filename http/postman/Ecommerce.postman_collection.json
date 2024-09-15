@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "ee562008-0098-4a12-8bd1-e8e19e76a1d3",
+		"name": "Ecommerce",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38350644"
+	},
+	"item": [
+		{
+			"name": "Get products",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{hostname}}/products",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productToken\": \"test-token-1\",\r\n  \"name\": \"Test product\",\r\n  \"price\": 50,\r\n  \"stock\": 10\r\n}"
+				},
+				"url": {
+					"raw": "{{hostname}}/products",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update product",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"stock\": 5\r\n}"
+				},
+				"url": {
+					"raw": "{{hostname}}/products/:id",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"products",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get product by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{hostname}}/products/:id",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"products",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete product",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{hostname}}/products/:id",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"products",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "hostname",
+			"value": "localhost:3000"
+		}
+	]
+}
